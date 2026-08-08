@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api, Order } from '../lib/api';
+import { api } from '../lib/api';
+import type { Order } from '../lib/api';
 
 const STATUS_STYLES: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',

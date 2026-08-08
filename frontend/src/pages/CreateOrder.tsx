@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { api, LineItem } from '../lib/api';
+import { api } from '../lib/api';
+import type { LineItem } from '../lib/api';
 
 interface LineItemForm {
   description: string;
