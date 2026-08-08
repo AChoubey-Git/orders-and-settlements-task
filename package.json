@@ -1,0 +1,30 @@
+{
+  "name": "orders-and-settlements",
+  "version": "1.0.0",
+  "description": "Monorepo workspace for Orders and Settlements application",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10"
+  },
+  "lint-staged": {
+    "backend/src/**/*.{ts,js}": [
+      "cd backend && npx eslint --fix"
+    ],
+    "frontend/src/**/*.{ts,tsx,js}": [
+      "cd frontend && npx eslint --fix"
+    ]
+  }
+}
