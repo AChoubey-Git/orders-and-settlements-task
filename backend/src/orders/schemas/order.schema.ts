@@ -46,6 +46,9 @@ export class Order {
   @Prop({ required: true, default: 0 })
   amountPaid: number;
 
+  @Prop({ required: true, default: true })
+  isEditable: boolean;
+
   @Prop({ required: true, enum: OrderStatus, default: OrderStatus.PENDING })
   status: string;
 }

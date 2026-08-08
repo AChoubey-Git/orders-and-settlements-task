@@ -39,9 +39,13 @@ export class OrdersService {
   }
 
   computeStatus(total: number, amountPaid: number, dueDate: Date): OrderStatus {
+    // PAID overrides everything
     if (amountPaid >= total) return OrderStatus.PAID;
+    // OVERDUE: any unpaid amount past the due date (even partially paid)
+    if (new Date() > new Date(dueDate)) return OrderStatus.OVERDUE;
+    // PARTIALLY_PAID: some payment made but not yet due
     if (amountPaid > 0) return OrderStatus.PARTIALLY_PAID;
-    if (new Date() > dueDate) return OrderStatus.OVERDUE;
+    // Default: no payment, not yet due
     return OrderStatus.PENDING;
   }
 }

@@ -1,7 +1,8 @@
 import {
-  BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
@@ -39,12 +40,23 @@ export class PaymentsService {
         throw new NotFoundException('Order not found');
       }
 
+      // Enforce immutability: orders are locked after first payment
+      if (!order.isEditable) {
+        throw new ForbiddenException('This order is locked and cannot accept further modifications');
+      }
+
       const remaining = order.total - order.amountPaid;
 
       if (dto.amount > remaining) {
-        throw new BadRequestException(
-          `Payment of ${dto.amount} exceeds remaining balance of ${remaining}`,
-        );
+        throw new UnprocessableEntityException({
+          error: 'PAYMENT_REJECTED',
+          message: `Payment amount of $${dto.amount.toFixed(2)} exceeds the maximum remaining balance of $${remaining.toFixed(2)}`,
+          meta: {
+            order_total: order.total,
+            current_paid: order.amountPaid,
+            maximum_allowed: remaining,
+          },
+        });
       }
 
       // Insert the payment document
@@ -71,7 +83,14 @@ export class PaymentsService {
       const updatedOrder = await this.orderModel
         .findByIdAndUpdate(
           orderId,
-          { $set: { amountPaid: newAmountPaid, status: newStatus } },
+          {
+            $set: {
+              amountPaid: newAmountPaid,
+              status: newStatus,
+              // Lock the order after first payment to enforce immutability
+              isEditable: false,
+            },
+          },
           { new: true, session },
         )
         .exec();
