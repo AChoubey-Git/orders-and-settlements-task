@@ -25,3 +25,5 @@ frontend/dist/
 
 # NestJS
 backend/dist/
+
+.vercel
