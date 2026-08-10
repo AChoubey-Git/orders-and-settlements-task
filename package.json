@@ -13,7 +13,7 @@
     "lint:backend": "npm run lint --prefix backend",
     "lint:frontend": "npm run lint --prefix frontend",
     "lint": "npm run lint:backend && npm run lint:frontend",
-    "prepare": "husky"
+    "prepare": "node -e \"if(process.env.CI) process.exit(0); require('child_process').spawnSync('husky', {stdio:'inherit'})\""
   },
   "devDependencies": {
     "husky": "^9.1.7",
