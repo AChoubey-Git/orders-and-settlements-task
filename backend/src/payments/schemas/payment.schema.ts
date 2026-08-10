@@ -16,6 +16,9 @@ export class Payment {
 
   @Prop()
   note: string;
+
+  @Prop({ required: true, enum: ['payment', 'refund'], default: 'payment' })
+  type: string;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

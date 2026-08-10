@@ -6,7 +6,9 @@ import {
   Param,
   Query,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -42,6 +44,24 @@ export class OrdersController {
     @Query('status') status?: string,
   ) {
     return this.ordersService.findAll(user.userId, status);
+  }
+
+  @Get('export')
+  @ApiOperation({ summary: 'Export orders as CSV' })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  @ApiQuery({ name: 'status', required: false })
+  async exportCsv(
+    @CurrentUser() user: { userId: string },
+    @Res() res: Response,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('status') status?: string,
+  ) {
+    const csvString = await this.ordersService.exportCsv(user.userId, startDate, endDate, status);
+    res.header('Content-Type', 'text/csv');
+    res.header('Content-Disposition', 'attachment; filename="orders.csv"');
+    return res.send(csvString);
   }
 
   @Get(':id')

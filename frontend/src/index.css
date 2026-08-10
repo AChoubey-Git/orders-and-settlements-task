@@ -1,3 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* CSS Variables - defaults (overridden by ThemeProvider) */
+:root {
+  --bg-from: #0f172a;
+  --bg-via: #1e1b4b;
+  --bg-to: #0f172a;
+  --accent: #4f46e5;
+  --accent-hover: #6366f1;
+  --accent-shadow: rgba(79,70,229,0.35);
+  --accent-ring: #4f46e5;
+  --accent-text: #a5b4fc;
+  --accent-subtext: #818cf8;
+  --card-bg: rgba(255,255,255,0.05);
+  --card-border: rgba(255,255,255,0.08);
+  --card-hover-bg: rgba(255,255,255,0.10);
+  --card-hover-border: rgba(99,102,241,0.40);
+  --header-bg: rgba(0,0,0,0.25);
+  --progress-bar: linear-gradient(90deg,#4f46e5,#818cf8);
+  --section-label: #818cf8;
+  --link-color: #818cf8;
+  --link-hover: #e0e7ff;
+}
+
+/* Force dark background on html+body — overrides Tailwind preflight white */
+html {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+}
+
+/* Themed background gradient applied to body */
+body {
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-via) 50%, var(--bg-to) 100%) !important;
+  background-color: var(--bg-from) !important;
+  min-height: 100vh;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  color: var(--text-main);
+}
+
+/* Also ensure #root fills the full height */
+#root {
+  min-height: 100vh;
+}
+
+/* Theme-aware utility classes */
+.themed-bg {
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-via) 50%, var(--bg-to) 100%);
+  min-height: 100vh;
+}
+
+.themed-accent-btn {
+  background-color: var(--accent);
+  color: var(--btn-text);
+  box-shadow: 0 8px 24px var(--accent-shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.themed-accent-btn:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px var(--accent-shadow);
+}
+
+.themed-accent-btn:active {
+  transform: translateY(0);
+}
+
+.themed-accent-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px var(--accent-shadow);
+}
+
+.themed-accent-btn:disabled {
+  opacity: 0.55;
+}
+
+.themed-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s, background-color 0.25s;
+}
+
+.themed-card:hover {
+  background: var(--card-hover-bg);
+  border-color: var(--card-hover-border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+}
+
+.themed-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-main);
+  transition: all 0.2s ease-in-out;
+}
+
+.themed-input:focus {
+  outline: none;
+  border-color: var(--accent-ring);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-ring) 15%, transparent);
+}
+
+.themed-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* Progress bar */
+.themed-progress-bar {
+  background: var(--progress-bar);
+}
+
+/* Section label color */
+.themed-section-label {
+  color: var(--section-label);
+}
+
+/* Accent text */
+.themed-accent-text {
+  color: var(--accent-text);
+}
+
+.themed-accent-subtext {
+  color: var(--accent-subtext);
+}
+
+/* Base text */
+.themed-text-main { color: var(--text-main); }
+.themed-text-sub { color: var(--text-sub); }
+.hover\:themed-text-main:hover { color: var(--text-main); }
+.hover\:themed-text-sub:hover { color: var(--text-sub); }
+
+/* Borders */
+.themed-border { border-color: var(--border-light); }
+.themed-border-b { border-bottom-color: var(--border-light); }
+.themed-border-t { border-top-color: var(--border-light); }
+.hover\:themed-border:hover { border-color: var(--text-sub); }
+
+/* Link colors */
+.themed-link {
+  color: var(--link-color);
+  transition: color 0.2s;
+}
+
+.themed-link:hover {
+  color: var(--link-hover);
+}
+
+/* Dropdown animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-sub); }
+
+/* Smooth transition when theme changes */
+*, *::before, *::after {
+  box-sizing: border-box;
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,40 +26,52 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center px-4">
+    <div className="min-h-screen themed-bg flex items-center justify-center px-4">
+      {/* Theme switcher - top right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeSwitcher />
+      </div>
+
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white tracking-tight">Orders & Settlements</h1>
-          <p className="text-indigo-300 mt-2">Sign in to your account</p>
+          <div
+            className="w-16 h-16 rounded-[1.25rem] flex items-center justify-center font-bold text-3xl mx-auto mb-6 shadow-xl"
+            style={{ background: 'var(--accent)', color: 'var(--btn-text)', boxShadow: '0 8px 32px var(--accent-shadow)' }}
+          >
+            O
+          </div>
+          <h1 className="text-3xl font-bold themed-text-main tracking-tight">Orders &amp; Settlements</h1>
+          <p className="themed-accent-text mt-2 text-sm font-medium">Sign in to your account</p>
         </div>
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl">
+
+        <div className="themed-card rounded-3xl p-8 sm:p-10 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-500/20 border border-red-400/50 text-red-200 rounded-lg px-4 py-3 text-sm">
-                {error}
+              <div className="bg-red-500/15 border border-red-400/40 text-red-600 dark:text-red-300 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
+                <span>⚠️</span> {error}
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-indigo-200 mb-1.5">Email</label>
+              <label className="block text-sm font-medium themed-text-sub mb-1.5">Email</label>
               <input
                 id="login-email"
                 type="email"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="themed-input w-full rounded-xl px-4 py-2.5 text-sm"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-indigo-200 mb-1.5">Password</label>
+              <label className="block text-sm font-medium themed-text-sub mb-1.5">Password</label>
               <input
                 id="login-password"
                 type="password"
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="themed-input w-full rounded-xl px-4 py-2.5 text-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -66,14 +79,14 @@ export default function Login() {
               id="login-submit"
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition duration-200 shadow-lg shadow-indigo-900/40"
+              className="themed-accent-btn w-full font-semibold py-3 rounded-full text-sm mt-2 shadow-lg"
             >
               {loading ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
-          <p className="text-center text-sm text-indigo-300 mt-6">
+          <p className="text-center text-sm themed-text-sub mt-6">
             No account?{' '}
-            <Link to="/register" className="text-indigo-400 hover:text-white font-medium transition">
+            <Link to="/register" className="themed-link font-medium">
               Register
             </Link>
           </p>

@@ -23,6 +23,16 @@ export enum OrderStatus {
   OVERDUE = 'overdue',
 }
 
+@Schema()
+export class StatusHistoryEntry {
+  @Prop({ required: true, enum: OrderStatus })
+  status: string;
+
+  @Prop({ required: true, default: Date.now })
+  timestamp: Date;
+}
+export const StatusHistoryEntrySchema = SchemaFactory.createForClass(StatusHistoryEntry);
+
 @Schema({ timestamps: true })
 export class Order {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
@@ -51,6 +61,12 @@ export class Order {
 
   @Prop({ required: true, enum: OrderStatus, default: OrderStatus.PENDING })
   status: string;
+
+  @Prop({ type: [StatusHistoryEntrySchema], default: [] })
+  statusHistory: StatusHistoryEntry[];
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

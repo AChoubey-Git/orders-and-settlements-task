@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Order } from '../lib/api';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-  partially_paid: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  paid: 'bg-green-500/20 text-green-300 border-green-500/30',
-  overdue: 'bg-red-500/20 text-red-300 border-red-500/30',
+  pending: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-300 border border-yellow-500/30',
+  partially_paid: 'bg-blue-400/20 text-blue-600 dark:text-blue-300 border border-blue-400/30',
+  paid: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30',
+  overdue: 'bg-red-500/20 text-red-600 dark:text-red-300 border border-red-500/30',
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -41,8 +42,13 @@ export default function Dashboard() {
       const data = await api.orders.list(filter !== 'all' ? filter : undefined);
       setOrders(data);
     } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes('401')) navigate('/login');
-      else setError(err instanceof Error ? err.message : 'Failed to load orders');
+      const msg = err instanceof Error ? err.message : 'Failed to load orders';
+      if (msg.toLowerCase().includes('unauthorized') || msg.includes('401')) {
+        localStorage.removeItem('access_token');
+        navigate('/login');
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -53,45 +59,85 @@ export default function Dashboard() {
     navigate('/login');
   }
 
+  async function handleExport() {
+    try {
+      const csv = await api.orders.exportCsv(undefined, undefined, filter !== 'all' ? filter : undefined);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to export orders';
+      setError(msg);
+    }
+  }
+
   const totalRevenue = orders.reduce((s, o) => s + o.amountPaid, 0);
   const outstanding = orders.reduce((s, o) => s + (o.total - o.amountPaid), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
+    <div className="min-h-screen themed-bg themed-text-main">
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between bg-black/20 backdrop-blur-sm sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-white tracking-tight">Orders & Settlements</h1>
-        <div className="flex items-center gap-3">
+      <header
+        className="themed-border-b border-b px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between sticky top-0 z-10 backdrop-blur-md gap-4 sm:gap-0"
+        style={{ background: 'var(--header-bg)' }}
+      >
+        <div className="flex items-center justify-between w-full sm:w-auto">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+              style={{ background: 'var(--accent)' }}
+            >
+              O
+            </div>
+            <h1 className="text-lg font-bold tracking-tight">Orders &amp; Settlements</h1>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <ThemeSwitcher />
+          <button
+            onClick={handleExport}
+            title="Export all orders as CSV"
+            className="themed-card text-sm font-semibold px-5 py-2.5 rounded-full ml-auto sm:ml-0 transition hover:-translate-y-0.5 border"
+          >
+            Export CSV
+          </button>
           <Link
             to="/orders/new"
             id="create-order-btn"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-lg shadow-indigo-900/30"
+            className="themed-accent-btn text-sm font-semibold px-5 py-2.5 rounded-full"
           >
             + New Order
           </Link>
           <button
             onClick={logout}
-            className="text-sm text-slate-400 hover:text-white transition px-3 py-2 rounded-lg hover:bg-white/5"
+            className="text-sm themed-text-sub hover:themed-text-main transition px-3 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
           >
             Logout
           </button>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full">
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Total Orders', value: orders.length, color: 'indigo' },
-            { label: 'Revenue Collected', value: `$${totalRevenue.toFixed(2)}`, color: 'green' },
-            { label: 'Outstanding', value: `$${outstanding.toFixed(2)}`, color: 'yellow' },
+            { label: 'Total Orders', value: orders.length, icon: '📦' },
+            { label: 'Revenue Collected', value: `$${totalRevenue.toFixed(2)}`, icon: '💰' },
+            { label: 'Outstanding', value: `$${outstanding.toFixed(2)}`, icon: '⏳' },
           ].map(stat => (
             <div
               key={stat.label}
-              className="bg-white/5 border border-white/10 rounded-xl px-5 py-4 hover:bg-white/10 transition"
+              className="themed-card rounded-3xl p-6 shadow-sm"
             >
-              <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">{stat.label}</p>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">{stat.icon}</span>
+                <p className="text-xs themed-text-sub uppercase tracking-wider font-medium">{stat.label}</p>
+              </div>
+              <p className="text-2xl font-bold themed-text-main">{stat.value}</p>
             </div>
           ))}
         </div>
@@ -103,11 +149,20 @@ export default function Dashboard() {
               key={f}
               id={`filter-${f}`}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium capitalize border transition ${
+              className="px-5 py-2 rounded-full text-sm font-medium capitalize border transition shadow-sm"
+              style={
                 filter === f
-                  ? 'bg-indigo-600 border-indigo-500 text-white'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
-              }`}
+                  ? {
+                      background: 'var(--accent)',
+                      borderColor: 'var(--accent)',
+                      color: 'var(--btn-text)',
+                    }
+                  : {
+                      background: 'var(--input-bg)',
+                      borderColor: 'var(--border-light)',
+                      color: 'var(--text-sub)',
+                    }
+              }
             >
               {f === 'partially_paid' ? 'Partially Paid' : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
@@ -115,17 +170,28 @@ export default function Dashboard() {
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-400/50 text-red-200 rounded-lg px-4 py-3 mb-6 text-sm">
-            {error}
+          <div className="bg-red-500/15 border border-red-400/40 text-red-600 dark:text-red-300 rounded-xl px-4 py-3 mb-6 text-sm flex items-center gap-2">
+            <span>⚠️</span> {error}
           </div>
         )}
 
         {loading ? (
-          <div className="text-center text-slate-400 py-20">Loading orders…</div>
+          <div className="text-center themed-text-sub py-20">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+            <p className="mt-3 text-sm">Loading orders…</p>
+          </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-slate-400 text-lg">No orders found.</p>
-            <Link to="/orders/new" className="text-indigo-400 hover:text-white text-sm mt-2 inline-block transition">
+            <div className="text-5xl mb-4">📋</div>
+            <p className="themed-text-sub text-lg">No orders found.</p>
+            <Link
+              to="/orders/new"
+              className="themed-link text-sm mt-2 inline-block font-medium"
+            >
               Create your first order →
             </Link>
           </div>
@@ -138,30 +204,30 @@ export default function Dashboard() {
                 <Link
                   key={order._id}
                   to={`/orders/${order._id}`}
-                  className="block bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-indigo-500/40 transition group"
+                  className="block themed-card rounded-3xl p-6 group"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div>
-                      <h2 className="font-semibold text-white group-hover:text-indigo-300 transition">
+                      <h2 className="font-semibold themed-text-main transition" style={{ transition: 'color 0.2s' }}>
                         {order.customerName}
                       </h2>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs themed-text-sub mt-1">
                         Due: {new Date(order.dueDate).toLocaleDateString()} · {order.lineItems.length} item(s)
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${STATUS_STYLES[order.status]}`}>
+                    <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3">
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${STATUS_STYLES[order.status]}`}>
                         {STATUS_LABELS[order.status]}
                       </span>
                       <div className="text-right">
-                        <p className="text-white font-bold">${order.total.toFixed(2)}</p>
-                        <p className="text-xs text-slate-400">${remaining.toFixed(2)} due</p>
+                        <p className="themed-text-main font-bold">${order.total.toFixed(2)}</p>
+                        <p className="text-xs themed-text-sub">${remaining.toFixed(2)} due</p>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                  <div className="mt-4 bg-slate-200 dark:bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                      className="h-full rounded-full themed-progress-bar transition-all duration-500"
                       style={{ width: `${progress}%` }}
                     />
                   </div>

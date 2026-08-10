@@ -40,14 +40,12 @@ export class PaymentsService {
         throw new NotFoundException('Order not found');
       }
 
-      // Enforce immutability: orders are locked after first payment
-      if (!order.isEditable) {
-        throw new ForbiddenException('This order is locked and cannot accept further modifications');
-      }
 
+
+      const isRefund = dto.type === 'refund';
       const remaining = order.total - order.amountPaid;
 
-      if (dto.amount > remaining) {
+      if (!isRefund && dto.amount > remaining) {
         throw new UnprocessableEntityException({
           error: 'PAYMENT_REJECTED',
           message: `Payment amount of $${dto.amount.toFixed(2)} exceeds the maximum remaining balance of $${remaining.toFixed(2)}`,
@@ -59,7 +57,14 @@ export class PaymentsService {
         });
       }
 
-      // Insert the payment document
+      if (isRefund && dto.amount > order.amountPaid) {
+        throw new UnprocessableEntityException({
+          error: 'REFUND_REJECTED',
+          message: `Refund amount of $${dto.amount.toFixed(2)} exceeds the currently paid amount of $${order.amountPaid.toFixed(2)}`,
+        });
+      }
+
+      // Insert the payment/refund document
       const [payment] = await this.paymentModel.create(
         [
           {
@@ -67,18 +72,23 @@ export class PaymentsService {
             amount: dto.amount,
             date: new Date(dto.date),
             note: dto.note,
+            type: dto.type || 'payment',
           },
         ],
         { session },
       );
 
       // Update the order's amountPaid and status atomically
-      const newAmountPaid = order.amountPaid + dto.amount;
+      const newAmountPaid = isRefund ? order.amountPaid - dto.amount : order.amountPaid + dto.amount;
       const newStatus = this.ordersService.computeStatus(
         order.total,
         newAmountPaid,
         order.dueDate,
       );
+
+      const statusHistoryUpdate = newStatus !== order.status
+        ? { $push: { statusHistory: { status: newStatus, timestamp: new Date() } } }
+        : {};
 
       const updatedOrder = await this.orderModel
         .findByIdAndUpdate(
@@ -87,9 +97,9 @@ export class PaymentsService {
             $set: {
               amountPaid: newAmountPaid,
               status: newStatus,
-              // Lock the order after first payment to enforce immutability
-              isEditable: false,
+              isEditable: false, // Remains locked even if refunded completely
             },
+            ...statusHistoryUpdate,
           },
           { new: true, session },
         )
