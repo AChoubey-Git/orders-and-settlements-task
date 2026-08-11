@@ -4,8 +4,6 @@ dist/
 build/
 
 # Environment
-.env
-.env.local
 .env.*.local
 
 # Logs
@@ -13,7 +11,6 @@ build/
 npm-debug.log*
 
 # IDE
-.vscode/
 .idea/
 
 # OS
@@ -27,3 +24,7 @@ frontend/dist/
 backend/dist/
 
 .vercel
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+config.bat
