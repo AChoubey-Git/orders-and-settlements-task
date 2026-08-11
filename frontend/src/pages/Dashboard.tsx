@@ -79,83 +79,57 @@ export default function Dashboard() {
   const outstanding = orders.reduce((s, o) => s + (o.total - o.amountPaid), 0);
 
   return (
-    <div className="min-h-screen themed-bg themed-text-main">
-      {/* Header */}
-      <header
-        className="themed-border-b border-b px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between sticky top-0 z-10 backdrop-blur-md gap-4 sm:gap-0"
-        style={{ background: 'var(--header-bg)' }}
-      >
-        <div className="flex items-center justify-between w-full sm:w-auto">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-              style={{ background: 'var(--accent)' }}
-            >
-              O
-            </div>
-            <h1 className="text-lg font-bold tracking-tight">Orders &amp; Settlements</h1>
-          </div>
+    <main className="w-full h-full p-4 sm:p-6 lg:p-8 xl:p-12">
+      {/* Header Area */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard overview</h1>
+          <p className="text-sm themed-text-sub mt-1">Track your orders and revenue settlements.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          <ThemeSwitcher />
-          <button
-            onClick={handleExport}
-            title="Export all orders as CSV"
-            className="themed-card text-sm font-semibold px-5 py-2.5 rounded-full ml-auto sm:ml-0 transition hover:-translate-y-0.5 border"
-          >
-            Export CSV
-          </button>
-          <Link
-            to="/orders/new"
-            id="create-order-btn"
-            className="themed-accent-btn text-sm font-semibold px-5 py-2.5 rounded-full"
-          >
-            + New Order
-          </Link>
-          <button
-            onClick={logout}
-            className="text-sm themed-text-sub hover:themed-text-main transition px-3 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full">
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {[
-            { label: 'Total Orders', value: orders.length, icon: '📦' },
-            { label: 'Revenue Collected', value: `$${totalRevenue.toFixed(2)}`, icon: '💰' },
-            { label: 'Outstanding', value: `$${outstanding.toFixed(2)}`, icon: '⏳' },
-          ].map(stat => (
-            <div
-              key={stat.label}
-              className="themed-card rounded-3xl p-6 shadow-sm"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">{stat.icon}</span>
-                <p className="text-xs themed-text-sub uppercase tracking-wider font-medium">{stat.label}</p>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Total Orders', value: orders.length, icon: '📦' },
+          { label: 'Revenue Collected', value: `$${totalRevenue.toFixed(2)}`, icon: '💰' },
+          { label: 'Outstanding', value: `$${outstanding.toFixed(2)}`, icon: '⏳' },
+        ].map(stat => (
+          <div
+            key={stat.label}
+            className="themed-card relative overflow-hidden rounded-2xl p-6 shadow-sm border border-white/20 dark:border-slate-800/50 backdrop-blur-xl group hover:-translate-y-1 transition-all duration-300"
+          >
+            {/* Glossy gradient effect behind stats */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-lg shadow-inner">
+                  {stat.icon}
+                </div>
+                <p className="text-xs themed-text-sub uppercase tracking-wider font-semibold">{stat.label}</p>
               </div>
-              <p className="text-2xl font-bold themed-text-main">{stat.value}</p>
+              <p className="text-3xl font-extrabold themed-text-main tracking-tight">{stat.value}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
+      {/* Filter Tabs & Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-wrap gap-2">
           {FILTERS.map(f => (
             <button
               key={f}
               id={`filter-${f}`}
               onClick={() => setFilter(f)}
-              className="px-5 py-2 rounded-full text-sm font-medium capitalize border transition shadow-sm"
+              className="px-5 py-2 rounded-full text-sm font-semibold capitalize border transition-all shadow-sm"
               style={
                 filter === f
                   ? {
                       background: 'var(--accent)',
                       borderColor: 'var(--accent)',
                       color: 'var(--btn-text)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }
                   : {
                       background: 'var(--input-bg)',
@@ -168,75 +142,94 @@ export default function Dashboard() {
             </button>
           ))}
         </div>
+        
+        <button
+          onClick={handleExport}
+          title="Export all orders as CSV"
+          className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold themed-card border transition-all hover:-translate-y-0.5 shadow-sm"
+        >
+          <span>📥</span> Export CSV
+        </button>
+      </div>
 
-        {error && (
-          <div className="bg-red-500/15 border border-red-400/40 text-red-600 dark:text-red-300 rounded-xl px-4 py-3 mb-6 text-sm flex items-center gap-2">
-            <span>⚠️</span> {error}
-          </div>
-        )}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-2xl px-5 py-4 mb-8 text-sm flex items-center gap-3 font-medium">
+          <span className="text-lg">⚠️</span> {error}
+        </div>
+      )}
 
-        {loading ? (
-          <div className="text-center themed-text-sub py-20">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
-            <p className="mt-3 text-sm">Loading orders…</p>
+      {loading ? (
+        <div className="text-center themed-text-sub py-20 bg-white/30 dark:bg-slate-900/30 rounded-3xl border border-white/20 dark:border-slate-800/30 backdrop-blur-sm">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
-        ) : orders.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4">📋</div>
-            <p className="themed-text-sub text-lg">No orders found.</p>
-            <Link
-              to="/orders/new"
-              className="themed-link text-sm mt-2 inline-block font-medium"
-            >
-              Create your first order →
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {orders.map(order => {
-              const remaining = order.total - order.amountPaid;
-              const progress = order.total > 0 ? (order.amountPaid / order.total) * 100 : 0;
-              return (
-                <Link
-                  key={order._id}
-                  to={`/orders/${order._id}`}
-                  className="block themed-card rounded-3xl p-6 group"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <p className="mt-4 text-sm font-medium tracking-wide">Syncing latest data…</p>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center py-24 bg-white/30 dark:bg-slate-900/30 rounded-3xl border border-white/20 dark:border-slate-800/30 backdrop-blur-sm">
+          <div className="text-6xl mb-6 grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">📋</div>
+          <p className="themed-text-sub text-lg font-medium">No orders found.</p>
+          <Link
+            to="/orders/new"
+            className="themed-link text-sm mt-3 inline-block font-semibold"
+          >
+            Create your first order →
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-5 sm:gap-6">
+          {orders.map(order => {
+            const remaining = order.total - order.amountPaid;
+            const progress = order.total > 0 ? (order.amountPaid / order.total) * 100 : 0;
+            return (
+              <Link
+                key={order._id}
+                to={`/orders/${order._id}`}
+                className="block themed-card relative overflow-hidden rounded-3xl p-6 group flex flex-col h-full hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:hover:shadow-[0_8px_30px_rgba(255,255,255,0.05)] transition-all duration-300 border border-white/20 dark:border-slate-800/50 hover:-translate-y-1"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                
+                <div className="relative z-10 flex justify-between items-start mb-8 gap-3">
+                  <div className="overflow-hidden">
+                    <h2 className="font-bold themed-text-main transition truncate text-lg tracking-tight" style={{ transition: 'color 0.2s' }}>
+                      {order.customerName}
+                    </h2>
+                    <p className="text-xs themed-text-sub mt-1.5 font-medium flex items-center gap-1.5">
+                      <span className="opacity-70">🗓</span> {new Date(order.dueDate).toLocaleDateString()}
+                      <span className="opacity-30">•</span>
+                      <span>{order.lineItems.length} item(s)</span>
+                    </p>
+                  </div>
+                  <span className={`text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-lg font-bold whitespace-nowrap shadow-sm backdrop-blur-md ${STATUS_STYLES[order.status]}`}>
+                    {STATUS_LABELS[order.status]}
+                  </span>
+                </div>
+                
+                <div className="relative z-10 mt-auto">
+                  <div className="flex justify-between items-end mb-4">
                     <div>
-                      <h2 className="font-semibold themed-text-main transition" style={{ transition: 'color 0.2s' }}>
-                        {order.customerName}
-                      </h2>
-                      <p className="text-xs themed-text-sub mt-1">
-                        Due: {new Date(order.dueDate).toLocaleDateString()} · {order.lineItems.length} item(s)
-                      </p>
+                      <p className="text-[10px] themed-text-sub font-bold uppercase tracking-widest mb-1 opacity-70">Total</p>
+                      <p className="themed-text-main font-extrabold text-2xl tracking-tight">${order.total.toFixed(2)}</p>
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3">
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${STATUS_STYLES[order.status]}`}>
-                        {STATUS_LABELS[order.status]}
-                      </span>
-                      <div className="text-right">
-                        <p className="themed-text-main font-bold">${order.total.toFixed(2)}</p>
-                        <p className="text-xs themed-text-sub">${remaining.toFixed(2)} due</p>
-                      </div>
+                    <div className="text-right">
+                      <p className="text-[10px] themed-text-sub font-bold uppercase tracking-widest mb-1 opacity-70">Remaining</p>
+                      <p className="font-bold text-sm text-amber-600 dark:text-amber-400">${remaining.toFixed(2)}</p>
                     </div>
                   </div>
-                  <div className="mt-4 bg-slate-200 dark:bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-slate-200/50 dark:bg-slate-800/50 rounded-full h-1.5 overflow-hidden shadow-inner backdrop-blur-sm">
                     <div
-                      className="h-full rounded-full themed-progress-bar transition-all duration-500"
+                      className="h-full rounded-full themed-progress-bar transition-all duration-1000 ease-out"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </main>
-    </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </main>
   );
 }

@@ -128,6 +128,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     
     // Apply dark color-scheme for scrollbars/native UI if dark theme
     root.style.colorScheme = themeName === 'dark' ? 'dark' : 'light';
+    
+    if (themeName === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
 
     root.style.setProperty('--bg-from', theme.bgFrom);
     root.style.setProperty('--bg-via', theme.bgVia);
