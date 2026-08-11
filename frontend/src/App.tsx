@@ -12,11 +12,13 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Layout><Dashboard /></Layout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/orders/new" element={<Layout><CreateOrder /></Layout>} />
-          <Route path="/orders/:id" element={<Layout><OrderDetail /></Layout>} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/orders/new" element={<CreateOrder />} />
+            <Route path="/orders/:id" element={<OrderDetail />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

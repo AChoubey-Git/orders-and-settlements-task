@@ -124,9 +124,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.backgroundColor = theme.bgFrom;
-    
-    // Apply dark color-scheme for scrollbars/native UI if dark theme
     root.style.colorScheme = themeName === 'dark' ? 'dark' : 'light';
     
     if (themeName === 'dark') {
@@ -134,35 +131,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove('dark');
     }
-
-    root.style.setProperty('--bg-from', theme.bgFrom);
-    root.style.setProperty('--bg-via', theme.bgVia);
-    root.style.setProperty('--bg-to', theme.bgTo);
-    root.style.setProperty('--accent', theme.accent);
-    root.style.setProperty('--accent-hover', theme.accentHover);
-    root.style.setProperty('--accent-shadow', theme.accentShadow);
-    root.style.setProperty('--accent-ring', theme.accentRing);
-    root.style.setProperty('--accent-text', theme.accentText);
-    root.style.setProperty('--accent-subtext', theme.accentSubtext);
-    root.style.setProperty('--card-bg', theme.cardBg);
-    root.style.setProperty('--card-border', theme.cardBorder);
-    root.style.setProperty('--card-hover-bg', theme.cardHoverBg);
-    root.style.setProperty('--card-hover-border', theme.cardHoverBorder);
-    root.style.setProperty('--header-bg', theme.headerBg);
-    root.style.setProperty('--progress-bar', theme.progressBar);
-    root.style.setProperty('--section-label', theme.sectionLabel);
-    root.style.setProperty('--link-color', theme.linkColor);
-    root.style.setProperty('--link-hover', theme.linkHover);
-    root.style.setProperty('--text-main', theme.textMain);
-    root.style.setProperty('--text-sub', theme.textSub);
-    root.style.setProperty('--border-light', theme.borderLight);
-    root.style.setProperty('--input-bg', theme.inputBg);
-    root.style.setProperty('--input-border', theme.inputBorder);
-    root.style.setProperty('--input-placeholder', theme.inputPlaceholder);
-    root.style.setProperty('--btn-text', theme.btnText);
-    root.style.setProperty('--dropdown-bg', theme.dropdownBg);
-    root.style.setProperty('--dropdown-hover', theme.dropdownHover);
-  }, [theme, themeName]);
+  }, [themeName]);
 
   function setTheme(name: ThemeName) {
     setThemeName(name);

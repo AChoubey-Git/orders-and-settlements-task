@@ -1,13 +1,28 @@
 <!doctype html>
-<html lang="en" style="background-color: #0f172a; color-scheme: dark;">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Orders &amp; Settlements</title>
     <meta name="description" content="Manage orders and track settlements with ease." />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('app_theme');
+          var theme = saved || 'dark';
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch(e) {}
+      })();
+    </script>
   </head>
-  <body style="background-color: #0f172a; margin: 0;">
+  <body style="margin: 0;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ThemeSwitcher from './ThemeSwitcher';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -53,7 +54,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Area */}
       <div className="flex-1 h-full overflow-y-auto lg:pt-0 pt-16 scroll-smooth bg-slate-50/30 dark:bg-slate-950/20">
-        {children}
+        <Outlet />
       </div>
     </div>
   );
