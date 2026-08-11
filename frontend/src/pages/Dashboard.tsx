@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Order } from '../lib/api';
-import ThemeSwitcher from '../components/ThemeSwitcher';
 
 const STATUS_STYLES: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-300 border border-yellow-500/30',
@@ -52,11 +51,6 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function logout() {
-    localStorage.removeItem('access_token');
-    navigate('/login');
   }
 
   async function handleExport() {

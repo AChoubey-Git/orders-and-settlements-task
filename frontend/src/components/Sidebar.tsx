@@ -1,5 +1,4 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ThemeSwitcher from './ThemeSwitcher';
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
